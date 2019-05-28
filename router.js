@@ -27,7 +27,15 @@ router.post("/:id/comments", (req, res) => {
 })
 
 //return an array of all the posts
-
+router.get("/", (req, res) => {
+    data.find()
+    .then( posts => {
+        res.status(200).json(posts)
+    })
+    .catch( error => {
+        res.status(500).json({ error: "The posts information could not be retrieved." })
+    })
+})
 
 
 //return post by id
@@ -46,12 +54,40 @@ router.get("/:id", (req, res) => {
 
 
 //return all comment from a post id
+router.get("/:id/comments", (req, res) => {
+    data.findById(req.params.id)
+    .then(post => {
+        if(post.length === 0) {
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+            return;
+        }
+        data.findCommentById(req.params.id)
+        .then( comments => {
+            res.status(200).json(comments)
+        })
+        .catch( error => {
+            res.status(500).json(error)
+        })
+    })
+    .catch(error => {
+        res.status(500).json(error)
+    })
+})
 
 
-
-//remove post by ID, return the deleted post Object
+//remove post by ID, return the deleted post Object <<<=== need more work
 router.delete("/:id", (req, res) => {
-    
+    data.remove(req.params.id)
+    .then( result => {
+        if(result === 0 ) {
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+            return;
+        }
+        res.status(200).json(result) //result is 1 if successfully deleted
+    })
+    .catch( error => {
+        res.status(500).json({ error: "The post could not be removed" })
+    })
 })
 
 
